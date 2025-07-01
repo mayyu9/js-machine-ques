@@ -13,7 +13,11 @@ const AutoCompleteSearch = () => {
     }
 
     useEffect( () => {
-        fetchData();
+        const timer = setTimeout(fetchData(), 300); // added debounce
+
+        return () => {
+            clearTimeout(timer);
+        }
     }, [input]);
 
 
