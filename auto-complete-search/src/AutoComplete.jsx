@@ -4,13 +4,25 @@ const AutoCompleteSearch = () => {
 
     const [input, setInput] = useState("")
     const [results, setResults] = useState([]);
-    const [showResults, setShowResults] = useState(false);
+    const [showResults, setShowResults] = useState(true);
+     const [cache, setCache] = useState({}); // local state cache
 
     const fetchData = async () => {
+         if (cache[input]) {
+            setResults(cache[input]);
+            return;
+        }
+
         const data = await fetch("https://dummyjson.com/recipes/search?q=" + input);
         const json = await data.json();
         setResults(json?.recipes);
+        setCache((prev) => ({...prev, [input]: json?.recipes}));
     }
+
+    const handleSuggestions = (e, selectedVal) => {
+        console.log("thakur suggestion: ", selectedVal);
+        setInput(selectedVal);
+    };
 
     useEffect( () => {
         const timer = setTimeout(fetchData(), 300); // added debounce
@@ -33,7 +45,14 @@ const AutoCompleteSearch = () => {
                 />
                 {showResults && (
                 <div className='results-container'>
-                    {results.map( (r) => <span className='result' key={r.id}>{r.name}</span>)}
+                    {results.map( (r) => <span className='result'
+                        onClick={(e) => handleSuggestions(e, r.name)}
+                        role="button"
+                        key={r.id}
+                        >
+                            {r.name}
+                        </span>)
+                    }
                 </div>
                 )}
             </div>
